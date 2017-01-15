@@ -27,7 +27,8 @@ def main(argv):
     if os.path.exists(dir_ + outfile):
         print("{} exists. Formatting output.".format(outfile))
         modpars = get_pars(dir_, mod_prefix, modnum)
-        formatCloudyOutput(dir_, mod_prefix, modnum, modpars)
+        formatCloudyOutput(dir_, mod_prefix, modnum, modpars,
+                use_extended_lines=True)
     else:
         print("No outfile. Stopping.")
 
