@@ -34,7 +34,7 @@ exec_write_input = True
 exec_run_cloudy = False
 exec_write_output = False
 exec_gen_FSPS_grid = False
-make_condor = True
+make_ocelote = True
 
 # Function to write the ascii file.
 # This is where you set the properties of the
@@ -97,7 +97,8 @@ if exec_write_ascii:
 #---------------------------------------------------------------------
 # local folder to read and write *.in, *.out files
 #mod_dir = '/home/oliver/research/emission/output_salp/'
-mod_dir = '/astro/users/ebyler/research/newem/output_mist_ssp/'
+# mod_dir = '/astro/users/ebyler/research/newem/output_mist_ssp/'
+mod_dir = '/xdisk/senchp/cloudyfsps/mist/output_mist_ssp/'
 mod_prefix = 'ZAU'
 
 # GRID PARAMETERS FOR CLOUDY RUN
@@ -148,28 +149,30 @@ else:
 #-----------------------------------------------------------------------
 #set up outfile and essential info
 outstr = 'mist_ssp'
-jobfile = '/astro/users/ebyler/research/newem/condor/cloudy_{0}_jobs.cfg'.format(outstr)
-jobfolder = '/astro/users/ebyler/research/newem/condor/output_{0}/'.format(outstr)
+jobfile = '/xdisk/senchp/cloudyfsps/mist/cloudy_{0}_jobs.cfg'.format(outstr)
+jobfolder = '/xdisk/senchp/cloudyfsps/mist/output_{0}/'.format(outstr)
 
-prefix_str = '''Notification = never
-getenv = true
-
-Executable = /astro/users/ebyler/research/newem/condor/run_cloudy.sh
-Initialdir = /astro/users/ebyler/research/newem/condor/
-
-Universe = vanilla
+prefix_str = '''#!/bin/bash
+#PBS -N cloudymist
+#PBS -W group_list=dpstark
+#PBS -q oc_windfall
+#PBS -l select=1:ncpus=12:mem=30gb
+### #PBS -l walltime=05:00:00
+### #PBS -l cput=30:00:00
+source activate sci2
+cd /xdisk/senchp/cloudyfsps/mist/
+export CLOUDY_EXE='/home/u7/senchp/bin/cloudyrun'
 '''
+
+Executable = /home/u7/senchp/builds/cloudyfsps/scripts/run_cloudy.sh
 #-----------------------------------------------------------------------
 
 f = open(jobfile, 'w')
 f.write(prefix_str+'\n')
 
 for i in range(len(pars)):
-    modstr = '''Log = {0}log{1}.txt
-Output = {0}run{1}.out
-Error = {0}run{1}.err
-Arguments = {2} {3} {1}
-Queue\n'''.format(jobfolder, i+1, mod_dir, mod_prefix)
+    modstr = "python {exec} {dir} {prefix} {num}\n"format(
+            exec=executable, dir=mod_dir, prefix=mod_prefix, num=i+1)
     f.write(modstr+'\n')
 f.close()
 
