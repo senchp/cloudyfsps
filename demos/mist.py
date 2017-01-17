@@ -164,15 +164,14 @@ cd /xdisk/senchp/cloudyfsps/mist/
 export CLOUDY_EXE='/home/u7/senchp/bin/cloudyrun'
 '''
 
-Executable = /home/u7/senchp/builds/cloudyfsps/scripts/run_cloudy.sh
 #-----------------------------------------------------------------------
 
 f = open(jobfile, 'w')
 f.write(prefix_str+'\n')
 
 for i in range(len(pars)):
-    modstr = "python {exec} {dir} {prefix} {num}\n"format(
-            exec=executable, dir=mod_dir, prefix=mod_prefix, num=i+1)
+    modstr = "python {ex} {dir} {prefix} {num}\n".format(
+            ex=executable, dir=mod_dir, prefix=mod_prefix, num=i+1)
     f.write(modstr+'\n')
 f.close()
 
