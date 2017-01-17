@@ -87,7 +87,7 @@ def compileASCII(ascii_file, **kwargs):
     f = open(comp_file, 'w')
     f.write('compile stars "{}"\n'.format(ascii_file))
     f.close()
-    to_run = 'cd {} ; {} compile.in'.format(CLOUDY_DATA_PATH, CLOUDY_EXE)
+    to_run = 'cd {} ; {} compile'.format(CLOUDY_DATA_PATH, CLOUDY_EXE)
     print('compiling {}'.format(ascii_file))
     proc = subprocess.Popen(to_run, shell=True)
     proc.communicate()
