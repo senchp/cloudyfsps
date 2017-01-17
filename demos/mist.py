@@ -171,7 +171,8 @@ f.write(prefix_str+'\n')
 
 for i in range(len(pars)):
     modstr = "python {ex} {dir} {prefix} {num}\n".format(
-            ex=executable, dir=mod_dir, prefix=mod_prefix, num=i+1)
+            ex='/home/u7/senchp/builds/cloudyfsps/scripts/runCloudy.py',
+            dir=mod_dir, prefix=mod_prefix, num=i+1)
     f.write(modstr+'\n')
 f.close()
 
