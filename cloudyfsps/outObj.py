@@ -19,14 +19,15 @@ planck = 6.626e-27
 pc_to_cm = 3.08568e18
 
 def getColors(vals, cname='CMRmap', minv=0.05, maxv=0.8, cmap=None,
-               set_bad_vals=False, return_cNorm=False, logNorm=False):
+              set_bad_vals=False, return_cNorm=False,
+              logNorm=False, Ncol=100, return_cmap=False):
     '''
     sM = getColors(arr, cname='jet', minv=0.0, maxv=1.0)
-    sM = getColors(arr, cmap=cubehelix.cmap())
+    sM,cNorm = getColors(arr, cmap=cubehelix.cmap(), return_cNorm=True)
     '''
     if cmap is None:
         cmap = plt.get_cmap(cname)
-    new_cmap = mpl_colors.LinearSegmentedColormap.from_list('trunc({0}, {1:.2f}, {2:.2f})'.format(cmap.name, minv, maxv), cmap(np.linspace(minv, maxv, 100)))
+    new_cmap = mpl_colors.LinearSegmentedColormap.from_list('trunc({0}, {1:.2f}, {2:.2f})'.format(cmap.name, minv, maxv), cmap(np.linspace(minv, maxv, Ncol)))
     if set_bad_vals:
         new_cmap.set_bad('white', alpha=1.0)
     if logNorm:
@@ -36,6 +37,10 @@ def getColors(vals, cname='CMRmap', minv=0.05, maxv=0.8, cmap=None,
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=new_cmap)
     if return_cNorm:
         return scalarMap, cNorm
+    if return_cmap:
+        color_list = new_cmap(np.linspace(minv, maxv, Ncol))
+        cmap_name = new_cmap.name+str(Ncol)
+        return new_cmap.from_list(cmap_name, color_list, Ncol)
     else:
         scalarMap.set_array(vals)
         return scalarMap
@@ -510,6 +515,8 @@ class modObj(object):
                 self.out['heat'] = line
             elif line[0:5] == ' HFBc':
                 self.out['HFBc'] = line
+            elif 'The geometry is' in line:
+                self.out['geometry'] = line
         file_.close()
         self.dist_fact = 4.0*np.pi*(10.0**self.logR)**2.0
         try:
@@ -520,7 +527,7 @@ class modObj(object):
         #self.Phi0 = float(sextract(self.out['SED2'], 'Ion pht flx:'))
         # Ion pht flx: phi(H) = Q/4piR2
         #self.clogQ = np.log10(self.Phi0*self.dist_fact)
-        #self.logU_Rs = float(sextract(self.out['INZ'], 'U(sp):', 'Q(ion):'))
+        self.strom_logU = float(sextract(self.out['INZ'], 'U(sp):', 'Q(ion):'))
         # Q(ion) is exiting
         self.Qarr = np.zeros(4)
         self.Phiarr = np.zeros(4)
@@ -835,17 +842,14 @@ class allmods(object):
     def pxl_plot(self, xval='logZ', yval='age', zval='log_OIII_Hb',
                  const='logU', cval=-2.0, ax=None, cname='CMRmap',
                  cmap=None, sM=None, cNorm=None, cb_arr=None,
-                 no_cbar=False, **kwargs):
+                 no_cbar=False, show_grid=False, aspect='auto',
+                 xlabels=None, ylabels=None,**kwargs):
         '''
         mods.pxl_plot(xval='logZ', yval='age', zval='log_OIII_Hb',
                       const='logR', cval=18, clab='log R (cm)')
         '''
         X, Y, Z = self.group_mods(xval=xval, yval=yval, zval=zval,
                                   const=const, cval=cval, **kwargs)
-        extent, aspect = calc_dim(X, Y, Z)
-        calc_aspect = kwargs.get('calc_aspect', True)
-        if not calc_aspect:
-            aspect = 'auto'
         masked_array = np.ma.array(Z, mask=np.isnan(Z))
         if (sM is None) or (cNorm is None):
             if cb_arr is not None:
@@ -862,9 +866,21 @@ class allmods(object):
         if ax is None:
             fig = plt.figure()
             ax = fig.add_subplot(111)
-        pf = ax.imshow(Z, norm=cNorm, interpolation='nearest', origin='lower',
-                       extent=extent, aspect=aspect,
+        pf = ax.imshow(Z, norm=cNorm, aspect=aspect,
+                       interpolation='nearest', origin='lower',
                        cmap=cmap)
+        xCenters = X[0]
+        yCenters = Y[:,0]
+        if xlabels is None:
+            xlabels = ['{0:.1f}'.format(x) for x in xCenters]
+        if ylabels is None:
+            ylabels = ['{0:.1f}'.format(y) for y in yCenters]
+        for axis, labels in zip([ax.xaxis, ax.yaxis], [xlabels, ylabels]):
+            locs = np.arange(len(labels))
+            axis.set_ticks(locs + 0.5, minor=True)
+            axis.set(ticks=locs, ticklabels=labels)
+        if show_grid:
+            ax.grid(True, which='minor')
         xlab = kwargs.get('xlab', None)
         ylab = kwargs.get('ylab', None)
         clab = kwargs.get('clab', None)
