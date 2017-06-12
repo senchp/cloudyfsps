@@ -82,6 +82,7 @@ if exec_write_ascii:
     print("Executing write ascii sequence...")
     if not compiledExists(ascii_file):
         print("No compiled model exists...Writing.")
+        print(ascii_file)
         mist_ascii(ascii_file)
         print("Compiling {} with Cloudy".format(ascii_file))
         compileASCII(ascii_file)
@@ -103,9 +104,12 @@ mod_prefix = 'ZAU'
 
 # GRID PARAMETERS FOR CLOUDY RUN
 #--------------
-ages = np.array([0.5e6, 1.0e6, 2.0e6, 3.0e6, 5.0e6, 7.0e6, 10.0e6])
-logUs =  np.array([-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0])
-logZs =  np.array([-2.5, -1.5, -0.75, -0.50, -0.25, 0.0, 0.25, 0.5])
+# ages = np.array([0.5e6, 1.0e6, 2.0e6, 3.0e6, 5.0e6, 7.0e6, 10.0e6])
+ages = np.array([0.5e6, 1.0e6, 2.0e6])
+# logUs =  np.array([-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0])
+logUs =  np.array([-4.0, -3.0, -2.0])
+# logZs =  np.array([-2.5, -1.5, -0.75, -0.50, -0.25, 0.0, 0.25, 0.5])
+logZs =  np.array([-2.5, -1.5, -0.50])
 
 #
 Rinners =  np.array([19.])
@@ -157,23 +161,31 @@ prefix_str = '''#!/bin/bash
 #PBS -W group_list=dpstark
 #PBS -q oc_windfall
 #PBS -l select=1:ncpus=12:mem=30gb
+#PBS -M senchp@email.arizona.edu
+#PBS -m bea
 ### #PBS -l walltime=05:00:00
 ### #PBS -l cput=30:00:00
 source activate sci2
 cd /xdisk/senchp/cloudyfsps/mist/
 export CLOUDY_EXE='/home/u7/senchp/bin/cloudyrun'
+export CLOUDY_DATA_PATH='/home/u7/senchp/builds/cloudy/c13.04/data/'
 '''
 
-Executable = /home/u7/senchp/builds/cloudyfsps/scripts/run_cloudy.sh
 #-----------------------------------------------------------------------
 
 f = open(jobfile, 'w')
 f.write(prefix_str+'\n')
 
-for i in range(len(pars)):
-    modstr = "python {exec} {dir} {prefix} {num}\n"format(
-            exec=executable, dir=mod_dir, prefix=mod_prefix, num=i+1)
-    f.write(modstr+'\n')
+# array job!
+modstr = "python {ex} {dir} {prefix} $PBS_ARRAY_INDEX \n".format(
+    ex='/home/u7/senchp/builds/cloudyfsps/scripts/runCloudy.py',
+    dir=mod_dir, prefix=mod_prefix)
+f.write(modstr+'\n')
+# for i in range(len(pars)):
+#     modstr = "python {ex} {dir} {prefix} {num}\n".format(
+#             ex='/home/u7/senchp/builds/cloudyfsps/scripts/runCloudy.py',
+#             dir=mod_dir, prefix=mod_prefix, num=i+1)
+#     f.write(modstr+'\n')
 f.close()
 
 print('Added {0} jobs to {1}'.format(len(pars), jobfile.split('/')[-1]))

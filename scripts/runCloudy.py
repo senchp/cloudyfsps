@@ -15,7 +15,7 @@ def get_pars(dir_, mod_prefix, modnum):
 
 def main(argv):
     dir_, mod_prefix, modnum = argv[0], argv[1], argv[2]
-    infile = mod_prefix + modnum + ".in" # removed dir
+    infile = mod_prefix + modnum  # removed dir
     outfile = mod_prefix + modnum + ".out"
     cloudy_exe = os.environ["CLOUDY_EXE"]
     print("Your CLOUDY_EXE env is set to: {}".format(cloudy_exe))
