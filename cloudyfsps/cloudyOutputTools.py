@@ -52,6 +52,7 @@ def formatCloudyOutput(dir_, model_prefix, modnum, modpars, use_extended_lines=F
     # sort them by wavelength
     sinds = np.argsort(wl)
     ### print vac_wl, flux to ***.lineflux
+    print('wl, datflu shapes', wl.shape, datflu.shape)
     output = np.column_stack((wl[sinds], datflu[sinds]))
     np.savetxt(newfile, output, fmt=str("%4.6e"))
     # print lines to ***.out_lines

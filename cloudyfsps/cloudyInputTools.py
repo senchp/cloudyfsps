@@ -37,7 +37,7 @@ def cloudyInput(dir_, model_name, **kwargs):
             "par2":"logz",
             "par2val":0.0,
             "maxStellar":None,
-            "use_extended_lines":False
+            "use_extended_lines":True
             }
     for key, value in kwargs.iteritems():
         pars[key] = value
