@@ -104,12 +104,12 @@ mod_prefix = 'ZAU'
 
 # GRID PARAMETERS FOR CLOUDY RUN
 #--------------
-# ages = np.array([0.5e6, 1.0e6, 2.0e6, 3.0e6, 5.0e6, 7.0e6, 10.0e6])
-ages = np.array([0.5e6, 1.0e6, 2.0e6])
-# logUs =  np.array([-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0])
-logUs =  np.array([-4.0, -3.0, -2.0])
-# logZs =  np.array([-2.5, -1.5, -0.75, -0.50, -0.25, 0.0, 0.25, 0.5])
-logZs =  np.array([-2.5, -1.5, -0.50])
+ages = np.array([0.5e6, 1.0e6, 2.0e6, 3.0e6, 5.0e6, 7.0e6, 10.0e6])
+# ages = np.array([0.5e6, 1.0e6, 2.0e6])
+logUs =  np.array([-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0])
+# logUs =  np.array([-4.0, -3.0, -2.0])
+logZs =  np.array([-2.5, -1.5, -0.75, -0.50, -0.25, 0.0, 0.25, 0.5])
+# logZs =  np.array([-2.5, -1.5, -0.50])
 
 #
 Rinners =  np.array([19.])
