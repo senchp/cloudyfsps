@@ -35,7 +35,7 @@ exec_write_input = True
 exec_run_cloudy = False
 exec_write_output = False
 exec_gen_FSPS_grid = False
-make_condor = True
+make_ocelote = True
 
 # Function to write the ascii file.
 # This is where you set the properties of the
@@ -172,34 +172,38 @@ if exec_gen_FSPS_grid:
 
 
 #-----------------------------------------------------------------------
-# Condor
+# ocelote
 #-----------------------------------------------------------------------
 #set up outfile and essential info
 outstr = 'fbhb'
-jobfile = '/astro/users/ebyler/research/newem/condor/cloudy_{}_jobs.cfg'.format(outstr)
-jobfolder = '/astro/users/ebyler/research/newem/condor/output_{}/'.format(outstr)
+jobfile = '/xdisk/senchp/cloudyfsps/fbhb/cloudy_{0}_jobs.cfg'.format(outstr)
+jobfolder = '/xdisk/senchp/cloudyfsps/fbhb/output_{0}/'.format(outstr)
 
-prefix_str = '''Notification = never
-getenv = true
-Requirements = (Machine != "ullr.astro.washington.edu")
-
-Executable = /astro/users/ebyler/research/newem/condor/run_cloudy.sh
-Initialdir = /astro/users/ebyler/research/newem/condor/
-
-Universe = vanilla
+prefix_str = '''#!/bin/bash
+#PBS -N cloudyfbhb
+#PBS -W group_list=dpstark
+#PBS -q oc_windfall
+#PBS -l select=1:ncpus=12:mem=30gb
+#PBS -M senchp@email.arizona.edu
+#PBS -m bea
+### #PBS -l walltime=05:00:00
+### #PBS -l cput=30:00:00
+source activate sci2
+cd /xdisk/senchp/cloudyfsps/fbhb/
+export CLOUDY_EXE='/home/u7/senchp/bin/cloudyrun'
+export CLOUDY_DATA_PATH='/home/u7/senchp/builds/cloudy/c13.04/data/'
 '''
+
 #-----------------------------------------------------------------------
-if make_condor:
-    f = open(jobfile, 'w')
-    f.write(prefix_str+'\n')
+f = open(jobfile, 'w')
+f.write(prefix_str+'\n')
 
-    for i in range(len(pars)):
-        modstr = '''Log = {0}log{1}.txt
-    Output = {0}run{1}.out
-    Error = {0}run{1}.err
-    Arguments = {2} {3} {1}
-    Queue\n'''.format(jobfolder, i+1, mod_dir, mod_prefix)
-        f.write(modstr+'\n')
-    f.close()
+# array job!
+modstr = "python {ex} {dir} {prefix} $PBS_ARRAY_INDEX \n".format(
+    ex='/home/u7/senchp/builds/cloudyfsps/scripts/runCloudy.py',
+    dir=mod_dir, prefix=mod_prefix)
+f.write(modstr+'\n')
 
-    print('Added {0} jobs to {1}'.format(len(pars), jobfile.split('/')[-1]))
+f.close()
+
+print('Added {0} jobs to {1}'.format(len(pars), jobfile.split('/')[-1]))
