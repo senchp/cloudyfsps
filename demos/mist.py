@@ -24,17 +24,13 @@ from cloudyfsps.generalTools import calcForLogQ
 #    your /path/to/cloudy.exe
 # 3. Writes Cloudy input files for a subset of grid
 #    parameters.
-# 4. Runs Cloudy on the *.in files
-# 5. Formats the various output files
+# 4. Writes input file for ocelote grid job to run 
+#    cloudy and format output.
 
 zsun = 0.0142
 
 exec_write_ascii = True
 exec_write_input = True
-exec_run_cloudy = False
-exec_write_output = False
-exec_gen_FSPS_grid = False
-make_ocelote = True
 
 # Function to write the ascii file.
 # This is where you set the properties of the
@@ -97,8 +93,6 @@ if exec_write_ascii:
 # WRITE CLOUDY INPUT
 #---------------------------------------------------------------------
 # local folder to read and write *.in, *.out files
-#mod_dir = '/home/oliver/research/emission/output_salp/'
-# mod_dir = '/astro/users/ebyler/research/newem/output_mist_ssp/'
 mod_dir = '/xdisk/senchp/cloudyfsps/mist/output_mist_ssp/'
 mod_prefix = 'ZAU'
 
@@ -181,11 +175,6 @@ modstr = "python {ex} {dir} {prefix} $PBS_ARRAY_INDEX \n".format(
     ex='/home/u7/senchp/builds/cloudyfsps/scripts/runCloudy.py',
     dir=mod_dir, prefix=mod_prefix)
 f.write(modstr+'\n')
-# for i in range(len(pars)):
-#     modstr = "python {ex} {dir} {prefix} {num}\n".format(
-#             ex='/home/u7/senchp/builds/cloudyfsps/scripts/runCloudy.py',
-#             dir=mod_dir, prefix=mod_prefix, num=i+1)
-#     f.write(modstr+'\n')
 f.close()
 
 print('Added {0} jobs to {1}'.format(len(pars), jobfile.split('/')[-1]))
