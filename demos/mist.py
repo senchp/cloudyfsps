@@ -24,17 +24,13 @@ from cloudyfsps.generalTools import calcForLogQ
 #    your /path/to/cloudy.exe
 # 3. Writes Cloudy input files for a subset of grid
 #    parameters.
-# 4. Runs Cloudy on the *.in files
-# 5. Formats the various output files
+# 4. Writes input file for ocelote grid job to run 
+#    cloudy and format output.
 
 zsun = 0.0142
 
 exec_write_ascii = True
 exec_write_input = True
-exec_run_cloudy = False
-exec_write_output = False
-exec_gen_FSPS_grid = False
-make_ocelote = True
 
 # Function to write the ascii file.
 # This is where you set the properties of the
@@ -97,19 +93,17 @@ if exec_write_ascii:
 # WRITE CLOUDY INPUT
 #---------------------------------------------------------------------
 # local folder to read and write *.in, *.out files
-#mod_dir = '/home/oliver/research/emission/output_salp/'
-# mod_dir = '/astro/users/ebyler/research/newem/output_mist_ssp/'
 mod_dir = '/xdisk/senchp/cloudyfsps/mist/output_mist_ssp/'
 mod_prefix = 'ZAU'
 
 # GRID PARAMETERS FOR CLOUDY RUN
 #--------------
-# ages = np.array([0.5e6, 1.0e6, 2.0e6, 3.0e6, 5.0e6, 7.0e6, 10.0e6])
-ages = np.array([0.5e6, 1.0e6, 2.0e6])
-# logUs =  np.array([-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0])
-logUs =  np.array([-4.0, -3.0, -2.0])
-# logZs =  np.array([-2.5, -1.5, -0.75, -0.50, -0.25, 0.0, 0.25, 0.5])
-logZs =  np.array([-2.5, -1.5, -0.50])
+ages = np.array([0.5e6, 1.0e6, 2.0e6, 3.0e6, 5.0e6, 7.0e6, 10.0e6])
+# ages = np.array([0.5e6, 1.0e6, 2.0e6])
+logUs =  np.array([-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0])
+# logUs =  np.array([-4.0, -3.0, -2.0])
+logZs =  np.array([-2.5, -1.5, -0.75, -0.50, -0.25, 0.0, 0.25, 0.5])
+# logZs =  np.array([-2.5, -1.5, -0.50])
 
 #
 Rinners =  np.array([19.])
@@ -181,11 +175,6 @@ modstr = "python {ex} {dir} {prefix} $PBS_ARRAY_INDEX \n".format(
     ex='/home/u7/senchp/builds/cloudyfsps/scripts/runCloudy.py',
     dir=mod_dir, prefix=mod_prefix)
 f.write(modstr+'\n')
-# for i in range(len(pars)):
-#     modstr = "python {ex} {dir} {prefix} {num}\n".format(
-#             ex='/home/u7/senchp/builds/cloudyfsps/scripts/runCloudy.py',
-#             dir=mod_dir, prefix=mod_prefix, num=i+1)
-#     f.write(modstr+'\n')
 f.close()
 
 print('Added {0} jobs to {1}'.format(len(pars), jobfile.split('/')[-1]))
