@@ -18,6 +18,9 @@ def plot_bpt(var_label, ax=None, line_ratio='NII', **kwargs):
         lab = kwargs.get('lab', 'Van Zee (1998)')
     else:
         lab = '__nolegend__'
+    # if not pkg_resources.resource_exists(__name__, "mist.py"):
+    #     raise ValueError("doesn't know about mist file")
+    print(__name__)
     linefile = pkg_resources.resource_filename(__name__, "data/vanzee_lines.dat")
     OII,e_OII,NeIII,e_NeIII,OIII,e_OIII,OI,e_OI,SIII,e_SIII,Ha,e_Ha,NII,e_NII,SII,e_SII,ArIII,e_ArIII,cHb,e_cHb = np.genfromtxt(linefile, delimiter=';', comments='#', unpack=True)
     # Van Zee uses [O III] 4959 + 5007 and [N II] 6548 + 6584
