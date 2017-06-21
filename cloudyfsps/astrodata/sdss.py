@@ -17,7 +17,7 @@ def load_spec():
     data = np.load(linefile)
     i, = np.where((data['lineindex_cln'] == 4) | (data['lineindex_cln'] == 5))
     outdata = dict()
-    for key, val in data.iteritems():
+    for key, val in data.items():
         outdata[key] = val
     def logify(a,b):
         if a is None or b is None:
