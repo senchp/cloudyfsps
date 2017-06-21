@@ -3,6 +3,7 @@
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 import os
+from itertools import product
 import numpy as np
 import subprocess
 import pkg_resources
@@ -32,10 +33,11 @@ def cloudyInput(dir_, model_name, **kwargs):
             "extra_output":True,
             "to_file":True,
             "verbose":False,
-            "par1":"age",
-            "par1val":5.0e6,
-            "par2":"logz",
-            "par2val":0.0,
+            "tabpar1":"age",
+            "tabpar1val":None,
+            "tabpar2":"logZ",
+            "tabpar2val":None,
+            "ntabpars": 2,
             "maxStellar":None,
             "use_extended_lines":True,
             "geometry":"sphere"
@@ -69,16 +71,25 @@ def cloudyInput(dir_, model_name, **kwargs):
     this_print('set punch prefix "{0}"'.format(model_name))
     this_print('set line precision 6')
     ####
-    if pars['par1'] == "age":
-        pars['par1val'] = pars['age']
-    if pars['par2'] == "logz":
-        pars['par2val'] = pars['logZ']
-        if pars['maxStellar'] is not None:
-            if pars['logZ'] > pars['maxStellar']:
-                pars['par2val'] = pars['maxStellar']
-            else:
-                pars['par2val'] = pars['logZ']
-    this_print('table star "{0}" {1}={2:.2e} {3}={4:.2e}'.format(pars['cloudy_mod'], pars['par1'], pars['par1val'],pars['par2'], pars['par2val']))
+    if pars['tabpar1'] == "age" and pars['tabpar1val'] is None:
+        pars['tabpar1val'] = pars['age']
+    if pars['tabpar2'] == "logZ" and pars['tabpar2val'] is None:
+        pars['tabpar2val'] = pars['logZ']
+
+    for i in range(1, pars['ntabpars']+1):
+        if pars['tabpar{}'.format(i)] == 'logZ':
+            if pars['maxStellar'] is not None:
+                if pars['tabpar{}val'.format(i)] > pars['maxStellar']:
+                    pars['tabpar{}val'.format(i)] = pars['maxStellar']
+
+    # this_print('table star "{0}" {1}={2:.2e} {3}={4:.2e}'.format(pars['cloudy_mod'], pars['par1'], pars['par1val'],pars['par2'], pars['par2val']))
+    tabline = 'table star "{}"'.format(pars['cloudy_mod'])
+    for i in range(1, pars['ntabpars']+1):
+        tabline += ' {nm}={val:.2e}'.format(
+                nm=pars['tabpar{}'.format(i)], 
+                val=pars['tabpar{}val'.format(i)])
+    this_print(tabline)
+
     if pars['use_Q']:
         this_print('Q(H) = {0:.3f} log'.format(pars['logQ']))
     else:
@@ -205,14 +216,15 @@ def runMake(dir_=None, n_proc=1, model_name=None):
 def printParFile(dir_, mod_prefix, pars):
     '''
     prints parameter file for easy parsing later
-    modnum, Z, a, U, R, logQ, n, efrac
+    modnum, Z, a, U, R, logQ, n, efrac, all other table params
     '''
     outfile = "{}{}.pars".format(dir_, mod_prefix)
     f = open(outfile, "w")
     for i in range(len(pars)):
         par = pars[i]
         if len(par) > 7:
-            pstr = "{0} {1:.2f} {2:.2e} {3:.2f} {4:.2f} {5:.2f} {6:.2f} {7:.2f} {8:.2e}\n".format(i+1, *par)
+            # pstr = "{0} {1:.2f} {2:.2e} {3:.2f} {4:.2f} {5:.2f} {6:.2f} {7:.2f} {8:.2e}\n".format(i+1, *par)
+            pstr = "{} ".format(i+1) + " ".join("{:.2e}".format(p) for p in par)
         else:
             pstr = "{0} {1:.2f} {2:.2e} {3:.2f} {4:.2f} {5:.2f} {6:.2f} {7:.2f}\n".format(i+1, *par)
         f.write(pstr)
@@ -243,6 +255,11 @@ def writeParamFiles(**kwargs):
                 "verbose":False,
                 "efracs":np.array([-1.0]),
                 "geometry":"sphere",
+                "tabpar1":"age",
+                "tabpar1val":None,
+                "tabpar2":"logZ",
+                "tabpar2val":None,
+                "ntabpars": 2,
                 "write_makefile":False,
                 "extras":"",
                 "extra_output":False}
@@ -250,40 +267,57 @@ def writeParamFiles(**kwargs):
         nom_dict[key] = val
     pars = kwargs.get("pars", None)
     if pars is None:
-        print("{} ages, {} logZs, {} logUs".format(len(nom_dict["ages"]),
-                                                   len(nom_dict["logZs"]),
-                                                   len(nom_dict["logUs"])))
-        pars = [(Z, a, U, R, calcForLogQ(logU=U, Rinner=10.0**R, nh=n), n, efrac) for Z in nom_dict["logZs"] for a in nom_dict["ages"] for U in nom_dict["logUs"] for R in nom_dict["r_inners"] for n in nom_dict["nhs"] for efrac in nom_dict["efracs"]]
-    # Z, a, U, R, Q, n, efrac
+        if (nom_dict['tabpar1'] == 'age' and nom_dict['tabpar1val'] is None
+                and nom_dict['tabpar2'] == 'logZ' and nom_dict['tabpar2val'] is None):
+            l = " {} logUs, {} ages, {} logZs".format(len(nom_dict["logUs"]),
+                                                        len(nom_dict["ages"]),
+                                                        len(nom_dict["logZs"]))
+            if nom_dict['ntabpars'] > 2:
+                for i in range(3, nom_dict['ntabpars']+1):
+                    l += ', {0} {1}'.format(len(nom_dict["tabpar{}val".format(i)]), nom_dict["tabpar{}".format(i)])
+        else:
+            l = '{} logUs'.format(len(nom_dict['logUs']))
+            for i in range(1, nom_dict['ntabpars']+1):
+                l += ', {0} {1}'.format(len(nom_dict["tabpar{}val".format(i)]), nom_dict["tabpar{}".format(i)])
+        print(l)
+        # pars = [(Z, a, U, R, calcForLogQ(logU=U, Rinner=10.0**R, nh=n), n, efrac) for Z in nom_dict["logZs"] for a in nom_dict["ages"] for U in nom_dict["logUs"] for R in nom_dict["r_inners"] for n in nom_dict["nhs"] for efrac in nom_dict["efracs"]]
+        parlist = [Z, a, U, R, calcForLogQ(logU=U, Rinner=10.0**R, nh=n), n, efrac] 
+        parlist += [nom_dict["tabpar{}val".format(i)] for i in range(3, nom_dict["ntabpars"]+1)]
+        pars = product(*parlist)
+    # Z, a, U, R, Q, n, efrac, then extra table parameters if they exist (tabpar3, tabpar4, ...)
     print("{} models".format(len(pars)))
     full_model_names = ["{}{}".format(nom_dict["model_prefix"], n+1)
                         for n in range(len(pars))]
     printParFile(nom_dict["dir_"], nom_dict["model_prefix"], pars)
     #--------------------------------------------
     for par, name in zip(pars, full_model_names):
-        cloudyInput(nom_dict["dir_"],
-                    name,
-                    logZ=par[0],
-                    age=par[1],
-                    logU=par[2],
-                    r_inner=par[3],
-                    logQ=par[4],
-                    dens=par[5],
-                    efrac=par[6],
-                    set_name=nom_dict["set_name"],
-                    use_Q=nom_dict["use_Q"],
-                    dust=nom_dict["dust"],
-                    re_z=nom_dict["re_z"],
-                    cloudy_mod=nom_dict["cloudy_mod"],
-                    verbose=nom_dict["verbose"],
-                    geometry=nom_dict["geometry"],
-                    extras=nom_dict["extras"],
-                    extra_output=nom_dict["extra_output"])
+        input_dict = {"dir_": nom_dict["dir_"],
+                    "model_name":name,
+                    "logZ":par[0],
+                    "age":par[1],
+                    "logU":par[2],
+                    "r_inner":par[3],
+                    "logQ":par[4],
+                    "dens":par[5],
+                    "efrac":par[6],
+                    "set_name":nom_dict["set_name"],
+                    "use_Q":nom_dict["use_Q"],
+                    "dust":nom_dict["dust"],
+                    "re_z":nom_dict["re_z"],
+                    "cloudy_mod":nom_dict["cloudy_mod"],
+                    "verbose":nom_dict["verbose"],
+                    "geometry":nom_dict["geometry"],
+                    "extras":nom_dict["extras"],
+                    "extra_output":nom_dict["extra_output"]
+                    }
+        for i in range(3, nom_dict['ntabpars']+1):
+            input_dict["tabpar{}".format(i)] = nom_dict["tabpar{}".format(i)]
+            input_dict["tabpar{}val".format(i)] = par[7 + (i-3)]
+
+        cloudyInput(**input_dict)
     #--------------------------------------------
     if nom_dict["write_makefile"]:
         writeMake(dir_=nom_dict["dir_"])
     #--------------------------------------------
     if nom_dict["run_cloudy"]:
         runMake(dir_=nom_dict["dir_"], n_proc=4, model_name=nom_dict["model_prefix"])
-    
-

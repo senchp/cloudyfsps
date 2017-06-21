@@ -56,9 +56,13 @@ class writeASCII:
         self.file.write("  20060612\n")
         self.file.write("  %i\n" %self.nom_dict['ndim'])
         self.file.write("  %i\n" %self.nom_dict['npar'])
-        self.file.write("  %s\n" %self.nom_dict['par1']) #first param
-        if self.nom_dict['npar'] > 1:
-            self.file.write("  %s\n" %self.nom_dict['par2']) #second param
+        try:
+            for i in range(1, self.nom_dict['npar']+1):
+                self.file.write("  {}\n".format(
+                    self.nom_dict['par{}'.format(i)]))
+        except KeyError:
+            raise KeyError("Must identify paramater {}".format(i))
+            
         self.file.write("  %i\n" %self.nom_dict['nmod']) #total number of mods
         self.file.write("  %i\n" %self.nom_dict['nx']) #number of lam pts
         self.file.write("  %s\n" %self.nom_dict['x']) #lambda or freq
@@ -66,10 +70,7 @@ class writeASCII:
         self.file.write("  %s\n" %self.nom_dict['f_type'])#F_lam or F_nu
         self.file.write("  %.8e\n" %self.nom_dict['conv2'])#units
         for chunk in grouper(4, modpars):
-            if self.nom_dict['npar'] > 1:
-                self.file.write("  " + "  ".join("{0:<8.2e}{1:>10.2e}".format(x[0], x[1]) for x in chunk) + "\n")
-            else:
-                self.file.write("  " + "  ".join("{0:>4.2e}".format(x) for x in chunk) + "\n")
+            self.file.write("  " + " ".join("{:.2e}".format(x) for y in chunk for x in y) + "\n")
     
     def write_data(self, array):
         '''

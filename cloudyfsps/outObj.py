@@ -110,9 +110,9 @@ class modObj(object):
         except IndexError:
             self.efrac = -1.0
         try:
-            self.fbhb = parline[8]
+            self.xrbnorm = parline[8]
         except IndexError:
-            self.fbhb = 0.0
+            self.xrbnorm = 0.0
         
         self.logq = np.log10((10.0**self.logQ)/(np.pi*4.0*self.nH*(10.0**self.logR)**2.0))
         self.fl = '{}{}{}'.format(dir_, prefix, self.modnum)
@@ -639,12 +639,12 @@ class allmods(object):
         except IndexError:
             self.efrac_vals = np.array([-1.0])
         try:
-            self.fbhb_vals = np.unique(self.modpars[:,8])
+            self.xrbnorm_vals = np.unique(self.modpars[:,8])
         except IndexError:
-            self.fbhb_vals = np.array([0.0])
+            self.xrbnorm_vals = np.array([0.0])
     def set_arrs(self):
         iterstrings = ['logZ', 'age', 'logU', 'logR', 'logQ', 'nH',
-                       'efrac','fbhb',
+                       'efrac','xrbnorm',
                        'log_NII_Ha','log_NIIa_Ha','log_NIIb_Ha',
                        'log_OIII_Hb','log_OIIIa_Hb','log_OIIIb_Hb',
                        'log_SII_Ha','log_SIIa_Ha','log_SIIb_Ha',
@@ -723,7 +723,7 @@ class allmods(object):
               'val5':0.0}
         for key, val in kwargs.iteritems():
             pd[key] = val
-        allvars = ['nH', 'logZ', 'logR', 'logU', 'age', 'efrac', 'fbhb']
+        allvars = ['nH', 'logZ', 'logR', 'logU', 'age', 'efrac', 'xrbnorm']
         [allvars.remove(x) for x in [pd['const1'], pd['const2'], pd['const3'], pd['const4'], pd['const5']] if x is not None]
         if gridnames is None:
             x_name, y_name = allvars[0], allvars[1]
