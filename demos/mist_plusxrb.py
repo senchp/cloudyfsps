@@ -57,8 +57,8 @@ def mist_ascii(fileout, **kwargs):
     xrb_bbnorms = np.arange(0.0, 5.0, 0.5)
     # fraction of stellar luminosity in hot ~keV blackbody
 
-    modpars = [(age, logZ, xrbnorm) for age in ages for logZ in logZs
-            for xrbnorm in xrb_bbnorms]
+    modpars = [(age, logZ, xrbn) for age in ages for logZ in logZs
+            for xrbn in xrb_bbnorms]
 
     lam = sp.wavelengths
     all_fluxs = []
@@ -86,7 +86,7 @@ def mist_ascii(fileout, **kwargs):
     # this function is flexible, ndim can be 3/4/n.
     writeASCII(fileout, lam, flat_flux, modpars,
                nx=len(lam), ndim=3, npar=3, nmod=nmod,
-               par1='age', par2='logz', par3='xrb_bbnorm')
+               par1='age', par2='logZ', par3='xrbn')
     return
 #---------------------------------------------------------------------
 # ASCII FILE: WRITE AND COMPILE
@@ -100,21 +100,26 @@ ascii_file = 'FSPS_MIST_SSP_XRB.ascii'
 compiled_ascii = '{}.mod'.format(ascii_file.split('.')[0])
 if exec_write_ascii:
     print("Executing write ascii sequence...")
-    print(ascii_file)
-    mist_ascii(ascii_file)
-    print("Compiling {} with Cloudy".format(ascii_file))
-    compileASCII(ascii_file)
-    print("Checking to see if compilation was successful...")
-    if checkCompiled(ascii_file):
-        print("Your model {} is ready to run.".format(compiled_ascii))
+    if not compiledExists(ascii_file):
+        print("No compiled model exists...Writing.")
+        print(ascii_file)
+        mist_ascii(ascii_file)
+        print("Compiling {} with Cloudy".format(ascii_file))
+        compileASCII(ascii_file)
+        print("Checking to see if compilation was successful...")
+        if checkCompiled(ascii_file):
+            print("Your model {} is ready to run.".format(compiled_ascii))
+        else:
+            sys.exit()
     else:
-        sys.exit()
+        print("{} already exists.".format(compiled_ascii))
+
 #---------------------------------------------------------------------
 # WRITE CLOUDY INPUT
 #---------------------------------------------------------------------
 # local folder to read and write *.in, *.out files
-mod_dir = '/xdisk/senchp/cloudyfsps/mist/output_mist_ssp_xrb/'
-mod_prefix = 'ZAU'
+mod_dir = '/xdisk/senchp/cloudyfsps/mist_xrb/output_mist_ssp_xrb/'
+mod_prefix = 'ZAUX'
 
 # GRID PARAMETERS FOR CLOUDY RUN
 #--------------
@@ -159,7 +164,7 @@ if exec_write_input:
                     tabpar1val=ages,
                     tabpar2='logZ',
                     tabpar2val=logZs,
-                    tabpar3='xrbnorm',
+                    tabpar3='xrbn',
                     tabpar3val=xrb_bbnorms,
                     extra_output=True,
                     extras='set WeakHeatCool 0.001\nsave last cooling each ".cool"')
@@ -177,8 +182,8 @@ else:
 #-----------------------------------------------------------------------
 #set up outfile and essential info
 outstr = 'mist_ssp_xrb'
-jobfile = '/xdisk/senchp/cloudyfsps/mist/cloudy_{0}_jobs.cfg'.format(outstr)
-jobfolder = '/xdisk/senchp/cloudyfsps/mist/output_{0}/'.format(outstr)
+jobfile = '/xdisk/senchp/cloudyfsps/mist_xrb/cloudy_{0}_jobs.cfg'.format(outstr)
+jobfolder = '/xdisk/senchp/cloudyfsps/mist_xrb/output_{0}/'.format(outstr)
 
 prefix_str = '''#!/bin/bash
 #PBS -N cloudymist
@@ -190,7 +195,7 @@ prefix_str = '''#!/bin/bash
 ### #PBS -l walltime=05:00:00
 ### #PBS -l cput=30:00:00
 source activate sci2
-cd /xdisk/senchp/cloudyfsps/mist/
+cd /xdisk/senchp/cloudyfsps/mist_xrb/
 export CLOUDY_EXE='/home/u7/senchp/bin/cloudyrun'
 export CLOUDY_DATA_PATH='/home/u7/senchp/builds/cloudy/c13.04/data/'
 '''

@@ -3,7 +3,6 @@
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 import os
-from itertools import product
 import numpy as np
 import subprocess
 import pkg_resources
@@ -225,6 +224,7 @@ def printParFile(dir_, mod_prefix, pars):
         if len(par) > 7:
             # pstr = "{0} {1:.2f} {2:.2e} {3:.2f} {4:.2f} {5:.2f} {6:.2f} {7:.2f} {8:.2e}\n".format(i+1, *par)
             pstr = "{} ".format(i+1) + " ".join("{:.2e}".format(p) for p in par)
+            pstr += "\n"
         else:
             pstr = "{0} {1:.2f} {2:.2e} {3:.2f} {4:.2f} {5:.2f} {6:.2f} {7:.2f}\n".format(i+1, *par)
         f.write(pstr)
@@ -280,11 +280,15 @@ def writeParamFiles(**kwargs):
             for i in range(1, nom_dict['ntabpars']+1):
                 l += ', {0} {1}'.format(len(nom_dict["tabpar{}val".format(i)]), nom_dict["tabpar{}".format(i)])
         print(l)
-        # pars = [(Z, a, U, R, calcForLogQ(logU=U, Rinner=10.0**R, nh=n), n, efrac) for Z in nom_dict["logZs"] for a in nom_dict["ages"] for U in nom_dict["logUs"] for R in nom_dict["r_inners"] for n in nom_dict["nhs"] for efrac in nom_dict["efracs"]]
-        parlist = [Z, a, U, R, calcForLogQ(logU=U, Rinner=10.0**R, nh=n), n, efrac] 
-        parlist += [nom_dict["tabpar{}val".format(i)] for i in range(3, nom_dict["ntabpars"]+1)]
-        pars = product(*parlist)
+
+        if nom_dict["ntabpars"] == 2:
+            pars = [(Z, a, U, R, calcForLogQ(logU=U, Rinner=10.0**R, nh=n), n, efrac) for Z in nom_dict["logZs"] for a in nom_dict["ages"] for U in nom_dict["logUs"] for R in nom_dict["r_inners"] for n in nom_dict["nhs"] for efrac in nom_dict["efracs"]]
+        elif nom_dict["ntabpars"] == 3:
+            pars = [(Z, a, U, R, calcForLogQ(logU=U, Rinner=10.0**R, nh=n), n, efrac, x) for Z in nom_dict["logZs"] for a in nom_dict["ages"] for U in nom_dict["logUs"] for R in nom_dict["r_inners"] for n in nom_dict["nhs"] for efrac in nom_dict["efracs"] for x in nom_dict["tabpar3val"]]
+        else:
+            raise ValueError("Currently only prepared to deal with 2 or 3 star table params; given {}".format(nom_dict["ntabpars"]))
     # Z, a, U, R, Q, n, efrac, then extra table parameters if they exist (tabpar3, tabpar4, ...)
+
     print("{} models".format(len(pars)))
     full_model_names = ["{}{}".format(nom_dict["model_prefix"], n+1)
                         for n in range(len(pars))]
@@ -308,8 +312,10 @@ def writeParamFiles(**kwargs):
                     "verbose":nom_dict["verbose"],
                     "geometry":nom_dict["geometry"],
                     "extras":nom_dict["extras"],
-                    "extra_output":nom_dict["extra_output"]
-                    }
+                    "extra_output":nom_dict["extra_output"],
+                    "ntabpars":nom_dict["ntabpars"]
+                    } 
+
         for i in range(3, nom_dict['ntabpars']+1):
             input_dict["tabpar{}".format(i)] = nom_dict["tabpar{}".format(i)]
             input_dict["tabpar{}val".format(i)] = par[7 + (i-3)]
