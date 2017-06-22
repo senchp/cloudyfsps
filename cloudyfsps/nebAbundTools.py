@@ -88,7 +88,7 @@ class dopita(abundSet):
         apply depletions and scale with logZ
         '''
         [self.__setattr__(key, val+self.logZ+self.depl[key])
-         for key, val in self.abund_0.iteritems() if not hasattr(self, key)]
+         for key, val in self.abund_0.items() if not hasattr(self, key)]
         return
 class newdopita(abundSet):
     solar = 'GASS10'
@@ -129,7 +129,7 @@ class newdopita(abundSet):
         return
     def calcFinal(self):
         [self.__setattr__(key, val+self.logZ+self.depl[key])
-         for key, val in self.abund_0.iteritems() if not hasattr(self, key)]
+         for key, val in self.abund_0.items() if not hasattr(self, key)]
         return
 
 class gutkin(abundSet):
@@ -165,7 +165,7 @@ class gutkin(abundSet):
         return
     def calcFinal(self):
         [self.__setattr__(key, val)
-         for key, val in self.abund_0.iteritems() if not hasattr(self, key)]
+         for key, val in self.abund_0.items() if not hasattr(self, key)]
         return
 
 class varyNO(abundSet):
@@ -202,7 +202,7 @@ class varyNO(abundSet):
         return
     def calcFinal(self):
         [self.__setattr__(key, val)
-         for key, val in self.abund_0.iteritems() if not hasattr(self, key)]
+         for key, val in self.abund_0.items() if not hasattr(self, key)]
         return
 
 

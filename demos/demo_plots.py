@@ -4,6 +4,9 @@
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 from cloudyfsps import outObj as ob
 from cloudyfsps.astrodata import dopita
 
@@ -11,7 +14,8 @@ from cloudyfsps.astrodata import dopita
 # to produce a grid of cloudy models and now
 # want to look at the data
 
-dir_ = './output_csfh/'
+# dir_ = './output_csfh/'
+dir_ = '/home/psenchyna/cloudyfsps/mistcoarse/output_mist_ssp/'
 mod_prefix='ZAU'
 # Read in output
 csf = ob.allmods(dir_, mod_prefix) #read_out=True for dust
@@ -19,8 +23,10 @@ csf = ob.allmods(dir_, mod_prefix) #read_out=True for dust
 # Line strengths, gas properties and ionizing properties, etc.
 
 #Plot general BPT diagram
-ages = [0.5e6, 1.0e6, 2.0e6, 4.0e6, 6.0e6]
-cols = ['#7fcdbb','#41b6c4','#1d91c0','#225ea8','#0c2c84']
+# ages = [0.5e6, 1.0e6, 2.0e6, 4.0e6, 6.0e6]
+ages = [0.5e6, 1.0e6, 2.0e6]
+# cols = ['#7fcdbb','#41b6c4','#1d91c0','#225ea8','#0c2c84']
+cols = ['#7fcdbb','#41b6c4','#1d91c0']
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
@@ -38,7 +44,8 @@ plt.title('CSFH Models')
 fig.savefig('CSFH_BPT.png')
 
 #Plot comparison with Dopita data
-age = 4.0e6
+# age = 4.0e6
+age = 2.0e6
 col = '#08519c'
 dcol = '#a50f15'
 pd=True
