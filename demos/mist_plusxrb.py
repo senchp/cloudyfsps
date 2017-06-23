@@ -54,7 +54,7 @@ def mist_ascii(fileout, **kwargs):
     # all ages and Zs
     ages = 10.**sp.log_age
     logZs = np.log10(sp.zlegend/zsun)
-    xrb_bbnorms = np.arange(0.0, 5.0, 0.5)
+    xrb_bbnorms = np.arange(0.0, 100.0, 1.0)
     # fraction of stellar luminosity in hot ~keV blackbody
 
     modpars = [(age, logZ, xrbn) for age in ages for logZ in logZs
@@ -68,7 +68,7 @@ def mist_ascii(fileout, **kwargs):
 
     xrb_fluxs = []
     for xrbn in xrb_bbnorms:
-        temp = (1.0*u.keV / con.k_B).to(u.K)
+        temp = (0.5*u.keV / con.k_B).to(u.K)
         # conversion factor to bump total lum to 1 Lsun
         conv = (1.0*con.L_sun / (con.sigma_sb * temp**4)).to(u.cm**2)
 
@@ -76,6 +76,18 @@ def mist_ascii(fileout, **kwargs):
         f *= np.pi*u.steradian * conv * xrbn
 
         xrb_fluxs.append((f/con.L_sun).to(1/u.Hz).value)
+
+    # w = np.where( (lam < 228.) )
+    # print('fsps fluxes', all_fluxs[0][0][w])
+    # print(all_fluxs[0][0][w].shape)
+    # print('max', np.max(all_fluxs[0][w]))
+
+    # print('xrb fluxes', xrb_fluxs[0][w])
+    # print(xrb_fluxs[0][w].shape)
+    # print('max', np.max(xrb_fluxs[0][w]))
+    # print('xrb fluxes', xrb_fluxs[4][w])
+    # print('max', np.max(xrb_fluxs[4][w]))
+    # stop
 
     nmod = len(modpars)
     # flatten flux for writing
@@ -130,7 +142,8 @@ logUs =  np.array([-4.0, -3.0, -2.0])
 # logZs =  np.array([-2.5, -1.5, -0.75, -0.50, -0.25, 0.0, 0.25, 0.5])
 logZs =  np.array([-2.5, -1.5, -0.50])
 
-xrb_bbnorms = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0])
+# xrb_bbnorms = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0])
+xrb_bbnorms = np.array([0.0, 1.0, 10.0, 50.0, 100.0])
 
 #
 Rinners =  np.array([19.])
