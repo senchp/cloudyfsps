@@ -61,3 +61,8 @@ target/
 
 *.swp
 *.swo
+
+# plots/etc
+*png
+*pdf
+demos/cloudyfsps
