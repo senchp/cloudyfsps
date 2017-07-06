@@ -119,6 +119,7 @@ def cloudyInput(dir_, model_name, **kwargs):
     this_print('stop temperature 100.0')
     this_print('stop efrac {0:.2f}'.format(pars['efrac']))
     this_print('save last linelist ".lin" "{}" absolute column'.format(linefile))
+    this_print('save line, array ".all_lines"')
     this_print('save last outward continuum ".outwcont" units Angstrom no title')
     this_print('save last incident continuum ".inicont" units Angstrom no title')
     if len(pars["extras"]) > 0:
