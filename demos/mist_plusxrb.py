@@ -54,7 +54,8 @@ def mist_ascii(fileout, **kwargs):
     # all ages and Zs
     ages = 10.**sp.log_age
     logZs = np.log10(sp.zlegend/zsun)
-    xrb_bbnorms = np.arange(0.0, 100.0, 1.0)
+    # xrb_bbnorms = np.arange(0.0, 100.0, 5.0)
+    xrb_bbnorms = [0., 1., 5., 10., 20., 30., 40., 50, 75., 100.]
     # fraction of stellar luminosity in hot ~keV blackbody
 
     modpars = [(age, logZ, xrbn) for age in ages for logZ in logZs
