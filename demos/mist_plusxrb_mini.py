@@ -108,7 +108,7 @@ def mist_ascii(fileout, **kwargs):
 # assumes you have $CLOUDY_EXE and $CLOUDY_DATA_PATH set as sys vars.
 
 # name of ascii file
-ascii_file = 'FSPS_MIST_SSP_XRB.ascii'
+ascii_file = 'FSPS_MIST_SSP_XRB_MINI.ascii'
 
 # or if there is an already-compiled one you want to use, specify here
 compiled_ascii = '{}.mod'.format(ascii_file.split('.')[0])
@@ -132,7 +132,7 @@ if exec_write_ascii:
 # WRITE CLOUDY INPUT
 #---------------------------------------------------------------------
 # local folder to read and write *.in, *.out files
-mod_dir = '/xdisk/senchp/cloudyfsps/mist_xrb/output_mist_ssp_xrb/'
+mod_dir = '/xdisk/senchp/cloudyfsps/mist_xrb_mini/output_mist_ssp_xrb/'
 mod_prefix = 'ZAUX'
 
 # GRID PARAMETERS FOR CLOUDY RUN
@@ -198,8 +198,8 @@ else:
 #-----------------------------------------------------------------------
 #set up outfile and essential info
 outstr = 'mist_ssp_xrb'
-jobfile = '/xdisk/senchp/cloudyfsps/mist_xrb/cloudy_{0}_jobs.cfg'.format(outstr)
-jobfolder = '/xdisk/senchp/cloudyfsps/mist_xrb/output_{0}/'.format(outstr)
+jobfile = '/xdisk/senchp/cloudyfsps/mist_xrb_mini/cloudy_{0}_jobs.cfg'.format(outstr)
+jobfolder = '/xdisk/senchp/cloudyfsps/mist_xrb_mini/output_{0}/'.format(outstr)
 
 prefix_str = '''#!/bin/bash
 #PBS -N cloudymist
@@ -211,9 +211,9 @@ prefix_str = '''#!/bin/bash
 ### #PBS -l walltime=05:00:00
 ### #PBS -l cput=30:00:00
 source activate sci2
-cd /xdisk/senchp/cloudyfsps/mist_xrb/
+cd /xdisk/senchp/cloudyfsps/mist_xrb_mini/
 export CLOUDY_EXE='/home/u7/senchp/bin/cloudyrun'
-export CLOUDY_DATA_PATH='/home/u7/senchp/builds/cloudy/c13.04/data/'
+export CLOUDY_DATA_PATH='/home/u7/senchp/builds/cloudy/c17.00/data/'
 '''
 
 #-----------------------------------------------------------------------
