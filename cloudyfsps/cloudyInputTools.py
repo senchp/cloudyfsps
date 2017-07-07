@@ -68,7 +68,7 @@ def cloudyInput(dir_, model_name, **kwargs):
     this_print('title {0}'.format(model_name.split('/')[-1]))
     this_print('////////////////////////////////////')
     this_print('set punch prefix "{0}"'.format(model_name))
-    this_print('set line precision 6')
+    this_print('print line precision 6')
     ####
     if pars['tabpar1'] == "age" and pars['tabpar1val'] is None:
         pars['tabpar1val'] = pars['age']
