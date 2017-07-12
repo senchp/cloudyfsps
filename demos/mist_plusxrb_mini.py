@@ -56,7 +56,7 @@ def mist_ascii(fileout, **kwargs):
     logZs = np.log10(sp.zlegend/zsun)
     # xrb_bbnorms = np.arange(0.0, 100.0, 5.0)
     # xrb_bbnorms = [0., 1., 5., 10., 20., 30., 40., 50, 75., 100.]
-    xrb_bbnorms = [0., 10., 100, 1000.]
+    xrb_bbnorms = [0., 0.1, 1., 10., 100, 1.e3]
     # fraction of stellar luminosity in hot ~keV blackbody
 
     modpars = [(age, logZ, xrbn) for age in ages for logZ in logZs
@@ -70,7 +70,8 @@ def mist_ascii(fileout, **kwargs):
 
     xrb_fluxs = []
     for xrbn in xrb_bbnorms:
-        temp = (0.5*u.keV / con.k_B).to(u.K)
+        # temp = (0.5*u.keV / con.k_B).to(u.K)
+        temp = (0.01*u.keV / con.k_B).to(u.K)
         # conversion factor to bump total lum to 1 Lsun
         conv = (1.0*con.L_sun / (con.sigma_sb * temp**4)).to(u.cm**2)
 
@@ -138,15 +139,15 @@ mod_prefix = 'ZAUX'
 # GRID PARAMETERS FOR CLOUDY RUN
 #--------------
 # ages = np.array([0.5e6, 1.0e6, 2.0e6, 3.0e6, 5.0e6, 7.0e6, 10.0e6])
-ages = np.array([0.5e6])
+ages = np.array([1.e6, 2.e6, 3.e6, 4.e6])
 # logUs =  np.array([-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0])
 logUs =  np.array([-2.0])
 # logZs =  np.array([-2.5, -1.5, -0.75, -0.50, -0.25, 0.0, 0.25, 0.5])
-logZs =  np.array([-2.5])
+logZs =  np.array([-1.0])
 
 # xrb_bbnorms = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0])
 # xrb_bbnorms = np.array([0.0, 1.0, 10.0, 50.0, 100.0])
-xrb_bbnorms = np.array([0., 1., 10., 100.])
+xrb_bbnorms = np.array([0.0, 0.1, 1., 10., 100., 1.e3])
 
 #
 Rinners =  np.array([19.])
